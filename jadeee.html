@@ -1,0 +1,664 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BROWN ET AL. V. BOARD OF EDUCATION OF TOPEKA ET AL.</title>
+<style>
+:root{
+  --bg1:#0f0f0f;
+  --bg2:#1f1f1f;
+  --accent:#ffcc66;        /* gold (used elsewhere) */
+  --accent-strong:#ffd787;
+  --card1:#383838;
+  --card2:#4f4f4f;
+  --panel-width:30%;
+  --muted:#cfcfcf;
+  --maxwidth:1100px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  background: linear-gradient(135deg,var(--bg1),var(--bg2));
+  color:#e8e8e8;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+/* center wrapper */
+.wrapper{max-width:var(--maxwidth);margin:18px auto;padding:18px}
+
+/* header: title, quote, designer - all centered */
+.header{
+  text-align:center;
+  margin-bottom:6px;
+}
+h1.title{
+  margin:0;
+  color:#ffffff;
+  font-size:2.1rem;
+  letter-spacing:0.04em;
+  line-height:1.05;
+  font-weight:700;
+}
+/* Warren quote - now white with white micro-glow and subtle animation */
+.warren-quote{
+  margin:10px auto 6px;
+  color:#ffffff; /* changed to white per request */
+  font-style:italic;
+  font-size:1.05rem;
+  max-width:900px;
+  text-shadow:
+    0 0 8px rgba(255,255,255,0.28),
+    0 0 18px rgba(255,255,255,0.20),
+    0 0 34px rgba(255,255,255,0.12);
+  animation: softglow-white 3s ease-in-out infinite alternate;
+}
+@keyframes softglow-white{
+  from{text-shadow:0 0 6px rgba(255,255,255,0.22),0 0 12px rgba(255,255,255,0.12)}
+  to  {text-shadow:0 0 18px rgba(255,255,255,0.36),0 0 36px rgba(255,255,255,0.18)}
+}
+.designer{
+  margin:6px 0 18px;
+  color:var(--accent);
+  font-weight:600;
+  text-align:center;
+}
+
+/* dashboard cards row (horizontal) */
+.dashboard-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.dash-card{
+  background:linear-gradient(145deg,var(--card1),var(--card2));
+  border-radius:12px;
+  padding:16px;
+  min-width:210px;
+  flex:0 0 230px;
+  cursor:pointer;
+  color:var(--accent);
+  box-shadow:0 8px 20px rgba(0,0,0,0.45);
+  transition:transform .20s ease, box-shadow .20s ease, background .25s;
+  text-align:center;
+}
+.dash-card h3{margin:0;font-size:1.02rem}
+.dash-card p{margin:6px 0 0;color:var(--muted);font-size:0.88rem}
+.dash-card:hover{transform:translateY(-6px)}
+.dash-card.selected{
+  background:linear-gradient(135deg,#3b2f12,#6b4a0f);
+  color:#070707;
+  box-shadow:0 14px 40px rgba(255,204,102,0.22);
+  transform:translateY(-6px) scale(1.02);
+  border:1px solid rgba(255,204,102,0.12);
+}
+
+/* main panel that displays module content */
+.main-panel{ background:linear-gradient(145deg,#0b0b0b,#141414); border-radius:12px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,0.6); min-height:320px; transition:all .35s ease; overflow:hidden}
+
+/* initial centered welcome text: double size, Playfair Display */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400   ;700&display=swap');
+.welcome-text{
+  font-family:'Playfair Display', serif;
+  text-align:center;
+  color:var(--accent);
+  font-size:2.1rem; /* approx twice previous */
+  margin:70px 10px;
+  line-height:1.12;
+  transition:opacity .45s ease, transform .45s ease;
+  text-shadow: 0 0 8px rgba(255,204,102,0.25);
+}
+
+/* module containers (hidden by default) */
+.module{ display:none; opacity:0; transform:translateY(8px); transition:opacity .35s ease, transform .35s ease; }
+.module.open{ display:block; opacity:1; transform:translateY(0) }
+
+/* About design subcards */
+.design-row{ display:flex; gap:14px; flex-wrap:wrap; margin-top:8px }
+.design-box{ background:linear-gradient(145deg,#232323,#3a3a3a); padding:14px; border-radius:10px; flex:1 1 300px; box-shadow:0 6px 14px rgba(0,0,0,0.35) }
+
+/* Court elements */
+.court-vertical{ display:flex; flex-direction:column; gap:12px; margin-top:8px }
+.court-item{ background:linear-gradient(145deg,#2b2b2b,#434343); border-radius:10px; padding:12px; cursor:pointer; color:var(--accent); box-shadow:0 6px 14px rgba(0,0,0,0.35) }
+.court-item:hover{ transform:translateY(-3px) }
+.court-detail{ background:#0f0f0f; border-left:3px solid var(--accent); padding:12px; border-radius:6px; color:#ddd; display:none; margin-top:8px; line-height:1.6 }
+
+/* significance elements */
+.significance-vertical{ display:flex; flex-direction:column; gap:12px; margin-top:8px }
+.significance-item{ background:linear-gradient(145deg,#2b2b2b,#434343); border-radius:10px; padding:12px; cursor:pointer; color:var(--accent); box-shadow:0 6px 14px rgba(0,0,0,0.35) }
+.significance-item:hover{ transform:translateY(-3px) }
+.significance-detail{ background:#0f0f0f; border-left:3px solid var(--accent); padding:12px; border-radius:6px; color:#ddd; display:none; margin-top:8px; line-height:1.6 }
+
+/* glossary: collapsible + vertical lists */
+.collapsible{ width:100%; background:linear-gradient(145deg,#272727,#3a3a3a); border:none; color:var(--accent); padding:10px; border-radius:8px; text-align:left; margin-top:10px; cursor:pointer; font-size:1rem; box-shadow:0 4px 10px rgba(0,0,0,0.3) }
+.collapsible:hover{box-shadow:0 0 12px rgba(255,204,102,0.4);transform:translateY(-3px)}
+.content{ display:none; padding:10px 6px; margin-top:8px }
+.vertical-list{ display:flex; flex-direction:column; gap:18px; max-height:520px; overflow:auto; padding-right:8px; margin-top:6px }
+.card-vertical{ display:flex; width:100%; height:86px; perspective:900px; cursor:pointer; align-items:center }
+.card-inner{ width:100%; height:86px; position:relative; transform-style:preserve-3d; transition:transform .45s cubic-bezier(.2,.9,.2,1); border-radius:8px }
+.card-face{ position:absolute; inset:0; backface-visibility:hidden; border-radius:8px; background:linear-gradient(145deg,#2b2b2b,#3c3c3c); display:flex;flex-direction:column;justify-content:center;align-items:flex-start; padding:12px 14px; box-shadow:0 6px 12px rgba(0,0,0,0.35); transition:transform .25s,box-shadow .25s; color:#efecea; text-align:left; font-size:0.95rem }
+.card-face h4{color:var(--accent);margin:0;font-size:1rem}
+.card-face p{margin:0;color:#ddd;font-size:0.86rem;line-height:1.25}
+.card-inner.flipped{ transform:rotateY(180deg) }
+.card-back{ transform:rotateY(180deg); display:flex; align-items:center; justify-content:flex-start; padding-left:14px }
+
+/* patterns */
+.patterns-wrap{display:flex;gap:14px;align-items:flex-start}
+.patterns-list{flex:1;display:flex;flex-direction:column;gap:8px}
+.pattern-item{ background:linear-gradient(145deg,#3b3b3b,#515151); border-radius:8px; padding:12px; box-shadow:0 6px 12px rgba(0,0,0,0.3); cursor:pointer; transition:box-shadow .2s,transform .15s; color:#e9e9e9; font-size:0.95rem; }
+.pattern-item:hover{box-shadow:0 0 12px rgba(255,204,102,0.4);transform:translateY(-3px)}
+.pattern-explain-box{ width:46%; min-width:200px; background:#161616; padding:12px; border-radius:8px; color:#ddd; border:1px solid rgba(255,255,255,0.05) }
+
+/* side panel */
+.side-panel{ position:fixed; right:0; top:0; height:100vh; width:0; background:#080808; color:#eaeaea; box-shadow:-10px 0 30px rgba(0,0,0,0.6); overflow:auto; transition:width .35s ease, opacity .25s ease; z-index:9999; padding:18px 20px; display:flex; flex-direction:column; gap:12px; opacity:0; }
+.side-panel.open{ width:var(--panel-width); opacity:1 }
+.side-panel .panel-header{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.side-panel h3{ margin:0; color:var(--accent) }
+.panel-close{ background:transparent; border:none; color:#cfcfcf; font-size:22px; cursor:pointer }
+.panel-body{ margin-top:8px; color:#ddd; line-height:1.5 }
+
+/* popup modal (modern) */
+.popup{ position:fixed; top:0; left:0; width:100%; height:100%; display:none; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000 }
+.popup .box{ width:90%; max-width:720px; background:#fff; color:#000; padding:18px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.5); }
+.popup .box h3{margin-top:0;color:#222}
+.popup .close-x{ float:right; font-size:20px; color:#555; cursor:pointer }
+.popup .box p{line-height:1.6}
+
+/* background info vertical layout */
+.bg-vertical{display:flex;flex-direction:column;gap:16px}
+.bg-item{ background:linear-gradient(145deg,#303030,#474747); border-radius:10px; padding:14px; box-shadow:0 6px 14px rgba(0,0,0,0.35); cursor:pointer; transition:box-shadow .2s,transform .15s; }
+.bg-item:hover{box-shadow:0 0 14px rgba(255,204,102,0.4);transform:translateY(-3px)}
+.bg-item h4{color:var(--accent);margin:0}
+.bg-detail{ background:#141414; margin-top:6px; border-left:3px solid var(--accent); padding:12px; border-radius:6px; color:#ddd; line-height:1.5; display:none }
+.bg-detail a{ color:var(--accent); cursor:pointer; text-decoration:underline }
+.bg-detail a:hover{ color:#99cfff }
+
+/* responsive */
+@media (max-width:1000px){ :root{ --panel-width:40% } }
+@media (max-width:700px){
+  .dashboard-row{ gap:10px; }
+  .dash-card{ min-width:160px; flex:1 1 160px }
+  :root{ --panel-width:100% }
+  .card-vertical{ height:76px }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <!-- header -->
+  <header class="header">
+    <h1 class="title">BROWN ET AL. V. BOARD OF EDUCATION OF TOPEKA ET AL.</h1>
+    <div class="warren-quote">“We conclude that in the field of public education the doctrine of 'separate but equal' has no place. Separate educational facilities are inherently unequal.”<br>— Chief Justice Warren</div>
+    <div class="designer">设计者：周晓妍</div>
+  </header>
+
+  <!-- dashboard cards -->
+  <div class="dashboard-row" id="dashboardRow">
+    <div class="dash-card" data-module="about" id="card-about" tabindex="0">
+      <h3>About the Design</h3>
+      <p>Design tools, methods & process</p>
+    </div>
+    <div class="dash-card" data-module="background" id="card-background" tabindex="0">
+      <h3>Background Information</h3>
+      <p>Historical context & NAACP efforts</p>
+    </div>
+    <div class="dash-card" data-module="court" id="card-court" tabindex="0">
+      <h3>Court Opinion Elements</h3>
+      <p>Facts · Issue · Reasoning · Holding</p>
+    </div>
+    <div class="dash-card" data-module="glossary" id="card-glossary" tabindex="0">
+      <h3>Bilingual Glossary</h3>
+      <p>20 terms · 10 phrases · 5 patterns</p>
+    </div>
+    <div class="dash-card" data-module="significance" id="card-significance" tabindex="0">
+      <h3>Great Significance</h3>
+      <p>Impact & legacy of the decision</p>
+    </div>
+  </div>
+
+  <!-- main panel -->
+  <main class="main-panel" id="mainPanel" aria-live="polite">
+    <div id="initialMessage" class="welcome-text">Let's explore the <em>Brown v. Board of Education</em> case through the website!</div>
+
+    <!-- About -->
+    <section id="module-about" class="module" aria-hidden="true">
+      <div class="design-row">
+        <div class="design-box">
+          <h4 style="color:var(--accent);margin-top:0">设计工具</h4>
+          <p style="color:var(--muted);margin:0">ChatGPT, KIMI, GitHub</p>
+        </div>
+        <div class="design-box">
+          <h4 style="color:var(--accent);margin-top:0">设计方法</h4>
+          <p style="color:var(--muted);margin:0">采用模块化设计与响应式布局，以便适应多种设备，卡片的设计增强可读性与可交互性。</p>
+        </div>
+        <div class="design-box">
+          <h4 style="color:var(--accent);margin-top:0">设计过程</h4>
+          <p style="color:var(--muted);margin:0">1. 需求分析  2. 代码生成  3. 测试与优化</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Background -->
+    <section id="module-background" class="module" aria-hidden="true">
+      <div class="bg-vertical">
+        <div class="bg-item" data-target="detail1"><h4>Long-standing tradition of racialism</h4></div>
+        <div id="detail1" class="bg-detail">From slavery through segregation, racial hierarchy had been deeply ingrained in American society, influencing education, politics, and everyday life.</div>
+        <div class="bg-item" data-target="detail2"><h4>Continuation of the apartheid policy after American Civil War</h4></div>
+        <div id="detail2" class="bg-detail">
+          After the Civil War → Reconstruction era (1865–1877) → the 13th, 14th, and 15th Amendments abolished slavery and granted voting rights.<br><br>
+          After Reconstruction → Passed a series of laws unfavorable to African Americans, such as the <a id="grandfather-link">Grandfather Clause</a> and <a id="jimcrow-link">Jim Crow Laws</a>.
+        </div>
+        <div class="bg-item" data-target="detail3"><h4>Efforts of the NAACP</h4></div>
+        <div id="detail3" class="bg-detail">By the early 1950s, NAACP was actively challenging segregation laws in public schools, filing lawsuits on behalf of plaintiffs in South Carolina, Virginia, and Delaware.</div>
+      </div>
+    </section>
+
+    <!-- Court -->
+    <section id="module-court" class="module" aria-hidden="true">
+      <div class="court-vertical">
+        <div class="court-item" data-target="facts-detail"><h4>Facts</h4></div>
+        <div id="facts-detail" class="court-detail">
+          <p>The laws of Kansas permitted (but did not mandate) cities with a population of more than 15,000 to establish racially segregated schools based on race. Based on such legal provisions, the Board of Education of Topeka established segregated public primary and secondary schools. However, many public schools in other nearby communities in Kansas at that time did not have such a system of establishing segregated schools.</p>
+          <p>Linda Brown, an African American primary school student in Kansas, was rejected from attending the white school (Sumner Elementary School) that was clearly close to her home. Instead, she had to take a bus every day to commute to a distant black school.</p>
+          <p>In the autumn of 1951, with the assistance of the NAACP, the girl's father, Oliver Brown, as the first plaintiff, joined forces with more than a dozen other parents who were also students of this black school to file a class-action lawsuit (集体诉讼) against the Board of Education of Topeka, demanding that the school district stop its policy of racial segregation. They contended that racially segregated schools had violated Linda Brown's right to equal protection guaranteed by the Fourteenth Amendment of the Constitution.</p>
+        </div>
+
+        <div class="court-item" data-target="procedural-history-detail"><h4>Procedural History</h4></div>
+        <div id="procedural-history-detail" class="court-detail">
+          <p>The plaintiffs filed their cases in federal district courts in various states. In several of these cases, three-judge federal district courts applied the "separate but equal" doctrine established in Plessy v. Ferguson and denied relief to the plaintiffs. Those decisions were appealed to the U.S. Supreme Court, which agreed to hear the consolidated cases.</p>
+          <p>Argument was heard in the 1952 Term, and reargument was heard this Term on certain questions propounded by the Court.</p>
+        </div>
+
+        <div class="court-item" data-target="issue-detail"><h4>Issue</h4></div>
+        <div id="issue-detail" class="court-detail">
+          <p>The issue presented to the Court was whether racial segregation in public education violates the Equal Protection Clause of the Fourteenth Amendment to the United States Constitution, even when the physical facilities and services are “substantially equal” under the doctrine of "separate but equal".</p>
+        </div>
+
+        <div class="court-item" data-target="holding-detail"><h4>Holding</h4></div>
+        <div id="holding-detail" class="court-detail">
+          <p>Reversed the lower court’s judgment</p>
+        </div>
+
+        <div class="court-item" data-target="reasoning-detail"><h4>Reasoning</h4></div>
+        <div id="reasoning-detail" class="court-detail">
+          <p><strong>1. Factual Level: Racial segregation in public schools results in actual inequality. There are significant gaps in teaching staff, facilities, resources, and other aspects between Black and white schools, which is not "separate but equal."</p>
+          <p>2. Psychological Harm: Mandatory racial segregation causes African American schoolchildren to develop a sense of inferiority, undermines their learning motivation and mental health, and this psychological harm inflicts irreversible deprivation of educational opportunities.</p>
+          <p>3. Legal Interpretation: The core of the Equal Protection Clause of the 14th Amendment to the U.S. Constitution is to ensure that citizens are not subjected to discriminatory treatment based on race. Public education is a fundamental right for citizens' development, and racial segregation directly violates the legislative spirit of this clause.</p>
+          <p>4. Precedent Overturning: The "separate but equal" principle established in the previous case Plessy v. Ferguson is inapplicable in the field of public education. Since it cannot achieve true equality and conflicts with the core value of equal protection under the Constitution, it should be overruled.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Glossary -->
+    <section id="module-glossary" class="module" aria-hidden="true">
+      <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+        <div style="flex:1 1 560px;min-width:280px">
+          <button class="collapsible" data-target="words-content">📘 20 Legal Terms (click to open)</button>
+          <div class="content" id="words-content">
+            <div class="vertical-list" id="words-list"></div>
+          </div>
+
+          <button class="collapsible" data-target="phrases-content">⚖️ 10 Legal Phrases (click to open)</button>
+          <div class="content" id="phrases-content">
+            <div class="vertical-list" id="phrases-list"></div>
+          </div>
+
+          <button class="collapsible" data-target="patterns-content">🧩 5 Typical Legal Sentence Patterns (click to open)</button>
+          <div class="content" id="patterns-content">
+            <div class="patterns-wrap">
+              <div class="patterns-list" id="patterns-list"></div>
+              <div class="pattern-explain-box hidden" id="pattern-explain">点击一个句型将在这里显示中文和示例句。</div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:0 0 1px"></div>
+      </div>
+    </section>
+
+    <!-- Great Significance -->
+    <section id="module-significance" class="module" aria-hidden="true">
+      <div class="significance-vertical">
+        <div class="significance-item" data-target="sig1-detail"><h4>Reshaping the Scope of Constitutional Equal Protection</h4></div>
+        <div id="sig1-detail" class="significance-detail">
+          <p>For the first time, it explicitly established that racial segregation in public education is "inherently unequal," breaking the long-standing constraint of the "separate but equal" doctrine on the Equal Protection Clause, providing direct legal basis for subsequent anti-segregation lawsuits.</p>
+        </div>
+
+        <div class="significance-item" data-target="sig2-detail"><h4>Laying Practical and Spiritual Foundations</h4></div>
+        <div id="sig2-detail" class="significance-detail">
+          <p>‐ The ruling directly sparked the upsurge of the U.S. Black Civil Rights Movement in the 1950s and 1960s.</p>
+          <p>‐ It promoted the anti-segregation legislative practices, creating judicial and social conditions for the enactment of landmark legislations such as the Civil Rights Act of 1964 and the Voting Rights Act (1965).</p>
+        </div>
+
+        <div class="significance-item" data-target="sig3-detail"><h4>Breaking Segregation Barriers and Promoting Diversity Integration</h4></div>
+        <div id="sig3-detail" class="significance-detail">
+          <p>‐ It mandated that states gradually abolish racial segregation in public schools, ending the long-term discriminatory distribution of educational resources (school buildings, faculty, textbooks, etc.) against Black students, advancing the concept of educational equity in the public education system.</p>
+        </div>
+
+        <div class="significance-item" data-target="sig4-detail"><h4>Reconstructing Social Cognition of Racial Equality</h4></div>
+        <div id="sig4-detail" class="significance-detail">
+          <p>‐ It challenged the long-standing racist social structure in the United States, promoting the transformation of "racial equality" from an abstract concept to concrete social practice.</p>
+          <p>‐ It provided a model for anti-segregation struggles in other fields (such as employment, housing, and public facilities), driving the United States towards a more inclusive society.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- side panel -->
+<div id="sidePanel" class="side-panel" aria-hidden="true" role="region" aria-label="Original sentence panel">
+  <div class="panel-header">
+    <h3 id="panelTitle">Original sentence</h3>
+    <button class="panel-close" id="panelClose" aria-label="Close panel">×</button>
+  </div>
+  <div class="panel-body" id="panelBody">
+    <p style="color:#bbb">点击左侧卡片查看对应的原句与注释。</p>
+  </div>
+</div>
+
+<!-- popup modal boxes for Jim Crow & Grandfather -->
+<div id="popup" class="popup" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="box" role="document">
+    <span class="close-x" onclick="closePopup()">×</span>
+    <div id="popup-content"></div>
+  </div>
+</div>
+
+<!-- general popup (used by some links as well) -->
+<div id="modal-jimcrow" class="popup" role="dialog" aria-modal="true" aria-hidden="true" style="display:none;">
+  <div class="box">
+    <span class="close-x" onclick="closePopup()">×</span>
+    <h3>Jim Crow Laws 吉姆克劳法</h3>
+    <p>The Jim Crow laws were state and local laws introduced in the Southern United States in the late 19th and early 20th centuries that enforced racial segregation, “Jim Crow” being a pejorative (轻蔑的，贬损的) term for an African American.</p>
+    <p>In practice, Jim Crow laws mandated racial segregation in all public facilities in the states of the former Confederate States of America and in some others, beginning in the 1870s. They were often accompanied by discrimination in voting, employment, housing and education.</p>
+    <p><strong>Separate But Equal:</strong> Jim Crow laws were upheld in 1896 in <em>Plessy v. Ferguson</em>, which established the "separate but equal" doctrine that stood for decades before being rejected in public education by <em>Brown</em>.</p>
+  </div>
+</div>
+
+<div id="modal-grandfather" class="popup" role="dialog" aria-modal="true" aria-hidden="true" style="display:none;">
+  <div class="box">
+    <span class="close-x" onclick="closePopup()">×</span>
+    <h3>Grandfather Clause 祖父条款</h3>
+    <p>The term originated in late 19th-century legislation and constitutional amendments passed by a number of white-dominated state legislatures including Alabama, Georgia, Louisiana, North Carolina, Oklahoma, and Virginia, which created new requirements for literacy tests（读写能力测试）, payment of poll taxes（人头税） and residency and property restrictions to register to vote.</p>
+    <p>States in some cases exempted those whose ancestors (e.g., grandfathers) had the right to vote before the American Civil War or as of a particular date from such requirements. The intent and effect of such rules was to prevent former African-American slaves and their descendants from voting but without denying poor and illiterate whites the right to vote.</p>
+    <p>In the <em>Guinn v. United States</em> case of 1915, it was ruled unconstitutional by the Supreme Court of the United States.</p>
+  </div>
+</div>
+
+<script>
+/* ================== Content data (as in earlier full version) ================== */
+const words = [
+  ["Amicus curiae","法院之友","By special leave of Court, Assistant Attorney General Rankin argued the cause for the United States on the reargument, as amicus curiae, urging reversal in Nos.1, 2 and 4 and affirmance in No.10."],
+  ["Consolidated opinion","合并意见书","They are premised on different facts and different local conditions, but a common legal question justifies their consideration together in this consolidated opinion."],
+  ["Motion to Dismiss","驳回动议","A. T. Walden were on the Statementas to Jurisdiction and a brief opposing a Motion to Dismiss or Affirm in No. ."],
+  ["Reversal","推翻原判","By special leave of Court,Assistant Attorney General Rankin argued thecause for the United States on the reargument, as amicuscuriae , urging reversain Nos.1,2 and 4 and affirmance in No,10."],
+  ["Affirmance","维持原判","By special leave of Court,Assistant Attorney General Rankin argued thecause for the United States on the reargument, as amicuscuriae , urging reversain Nos.1,2 and 4 and affirmance in No,10."],
+  ["Petitioners","上诉人，情愿人","H. Albert Young,Attorney General of Delaware, argued the cause forpetitioners in No. 10 on the original argument and on the reargument."],
+  ["Minor","未成年人","In cach of the cases, minors of the Negro race, through thcir legalrepresentatives, seck the aid of the courts in obtaining admission to the publicschools of their community on a nonsegregated basis."],
+  ["Legal Representative","法定代理人","In cach of the cases, minors of the Negro race, through thcir legalrepresentatives, seck the aid of the courts in obtaining admission to the publicschools of their community on a nonsegregated basis., "],
+  ["Attorney General","检察长","Withhim on the briefs was Harold R. Fatzer, Attorncy General."],
+  ["Constitutionality","合宪性","Withhim on the briefs was Harold R. Fatzer, Attorncy General."],
+  ["Equal protection","平等保护","This segregation was alleged to deprive the plaintiffs of the equal protection of the laws under the Fourteenth Amendment."],
+  ["Separate but equal","隔离但平等","In each of the cases other than the Delaware case, a three-judge federal district court denied relief to the plaintiffs on the so-called “separate but equal” doctrine announced by this Court in Plessy v. Ferguson,163 U.S.537."],
+  ["Supra","前引，见前文","In Sweatt v. Painter, supra, the Court expressly reserved decision on the question whether Plessy v. Ferguson should be held inapplicable to public education."],
+  ["Ratification","批准","It covered exhaustively consideration of the Amendment in Congress, ratification by the states, then existing practices in racial segregation, and the views of proponents and opponents of the Amendment."],
+  ["Amendments","修正案","The most avid proponents of the post-War Amendments undoubtedly intended them to remove all legal distinctions among “all persons born or naturalized in the United States.\""],
+  ["Reargument","再次辩论","Argument was heard in the 1952 Term, and reargument was heard this Term on certain questions propounded by the Court."],
+  ["Class actions","集体诉讼","Because these are class actions, because of the wide applicability of this decision, and because of the great variety of local conditions, the formulation of decrees in these cases presents problems of considerable complexity."],
+  ["Decrees","救济令","Because these are class actions, because of the wide applicability of this decision, and because of the great variety of local conditions, the formulation of decrees in these cases presents problems of considerable complexity."],
+  ["Docket","案卷","In order that we may have the full assistance of the parties in formulating decrees, the cases will be restored to the docket..."],
+  ["Due Process Clause","正当程序条款","This disposition makes unnecessary any discussion whether such segregation also violates the Due Process Clause of the Fourteenth Amendment."],
+];
+
+const phrases = [
+  ["Argue the cause for","为...作辩护","Robert L. Carter argued the cause for appellants in No.1 on the original argument and on the reargument."],
+  ["By special leave of Court","经法院特别许可","By special leave of Court, Assistant Attorney General Rankin argued the cause for the United States on the reargument, as amicus curiae, urging reversal in Nos.1, 2 and 4 and affirmance in No.10."],
+  ["Urge reversal","主张推翻","By special leave of Court, Assistant Attorney General Rankin argued the cause for the United States on the reargument, as amicus curiae, urging reversal in Nos.1, 2 and 4 and affirmance in No.10."],
+  ["Briefs of amici curiae","法庭之友意见书","Briefs of amici curiae supporting appellants in No.1 were filed by Shad Polier, Will Maslow and Joseph B. Robison for the American Jewish Congress; by Edwin J. Lukas, Arnold Forster, Arthur Gurfield Hays, Frank E. Karelsen, Leonard Haas, Saburo Kido and Theodore Leskes for the American Civil Liberties Union et al."],
+  ["Deny relief","驳回救济","In each of the cases other than the Delaware case, a three-judge federal district court denied relief to the plaintiffs on the so-called “separate but equal” doctrine announced by this Court in Plessy v. Ferguson,163 U.S.537."],
+  ["Take jurisdiction","取得管辖权","Because of the obvious importance of the question presented, the Court took jurisdiction."],
+  ["Rule against (the plaintiffs/...)","做出不利于(原告/...)的判决"," The effect of this separation on their educational opportunities waswell stated by a finding in the Kansas case by a court which nevertheless feltcompelled to rule against the Negro plaintiffs."],
+  ["Compulsory school attendance","义务教育","Compulsory school attendance laws and the great expenditures for education both demonstrate our recognition of the importance of education to our democratic society."],
+  ["Be deprived of the equal protection of the laws","被剥夺法律的平等保护权","Therefore, we hold that the plaintiffs and others similarly situated for whom the actions have been brought are, by reason of the segregation complained of, deprived of the equal protection of the laws guaranteed by the Fourteenth Amendment."],
+  ["Restore to the docket","恢复至案卷","In order that we may have the full assistance of the parties in formulating decrees, the cases will be restored to the docket, and the parties are requested to present further argument on Questions 4 and 5 previously propounded by the Court for the reargument this Term."],
+];
+
+const patterns = [
+  ["On the brief were[sb.] for appellant/...]","“上诉人/...的诉状由[某人]提交”","On the briefs were Robert L. Carter, Thurgood Marshall ...（names） for appellants."],  
+  ["This discussion and our own investigation convince us that [conclusion/opinion].","“本院经讨论并自行调查后认定……”","This discussion and our own investigation convince us that, although these sources cast some light, it is not enough to resolve the problem with which we are faced."],
+  ["Any language in [precedent] contrary to this finding is rcjected.]","“[先例]中任何与该认定相悖的表述均被否决。”","Any language in Plessyv.Ferguson contrary to this finding is rcjected."],
+  ["This disposition makes unnecessary any discussion whether [action/issue] also violates [legal provision].","“本院此项处理使我们无须讨论……是否同时违反……”","This disposition makes unnecessary any discussion whether such segregation also violates the Due Process Clause of the Fourteenth Amendment."],
+  ["It is so ordered.]","“故判决如上”","... It is so ordered."]
+];
+
+/* ========= Utilities & Interactions (same as prior full version) ========= */
+function escapeHtml(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* Dashboard logic */
+const cards = document.querySelectorAll('.dash-card');
+const modules = document.querySelectorAll('.module');
+const initialMessage = document.getElementById('initialMessage');
+const mainPanel = document.getElementById('mainPanel');
+
+function clearSelection(){
+  cards.forEach(c=>c.classList.remove('selected'));
+  modules.forEach(m=>{ m.classList.remove('open'); m.setAttribute('aria-hidden','true'); });
+}
+
+function openModule(modId){
+  closePopup(); // close any popup
+  clearSelection();
+  const card = document.querySelector(`.dash-card[data-module="${modId}"]`);
+  if(card) card.classList.add('selected');
+  // hide initial message
+  initialMessage.style.display = 'none';
+  // open module
+  const el = document.getElementById(`module-${modId}`);
+  if(el){
+    el.classList.add('open');
+    el.setAttribute('aria-hidden','false');
+    setTimeout(()=>{ mainPanel.scrollIntoView({behavior:'smooth', block:'start'}); }, 50);
+  }
+}
+
+cards.forEach(card=>{
+  card.addEventListener('click', ()=>{
+    const mod = card.getAttribute('data-module');
+    if(card.classList.contains('selected')){
+      clearSelection();
+      initialMessage.style.display = 'block';
+      modules.forEach(m=>{ m.classList.remove('open'); m.setAttribute('aria-hidden','true'); });
+      closePopup();
+      setTimeout(()=>{ mainPanel.scrollIntoView({behavior:'smooth', block:'start'}); }, 60);
+      return;
+    }
+    openModule(mod);
+  });
+  card.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' ') { e.preventDefault(); card.click(); }});
+});
+
+/* Court toggles */
+document.querySelectorAll('.court-item').forEach(item=>{
+  item.addEventListener('click', function(e){
+    const targetId = item.getAttribute('data-target');
+    const detail = document.getElementById(targetId);
+    detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+    e.stopPropagation();
+  });
+});
+
+/* Significance toggles */
+document.querySelectorAll('.significance-item').forEach(item=>{
+  item.addEventListener('click', function(e){
+    const targetId = item.getAttribute('data-target');
+    const detail = document.getElementById(targetId);
+    detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+    e.stopPropagation();
+  });
+});
+
+/* Background toggles and popup invocation */
+document.querySelectorAll('.bg-item').forEach(item=>{
+  item.addEventListener('click', function(e){
+    const id=this.getAttribute('data-target');
+    const detail=document.getElementById(id);
+    // hide others
+    document.querySelectorAll('.bg-detail').forEach(d=>{ if(d!==detail) d.style.display='none'; });
+    detail.style.display = (detail.style.display==='block') ? 'none' : 'block';
+    e.stopPropagation();
+  });
+});
+
+/* popup show/close functions (modern modal) */
+const popupDiv = document.getElementById('popup');
+const popupContent = document.getElementById('popup-content');
+function showPopup(html){
+  popupContent.innerHTML = html;
+  popupDiv.style.display = 'flex';
+  popupDiv.setAttribute('aria-hidden','false');
+}
+function closePopup(){
+  popupDiv.style.display = 'none';
+  popupDiv.setAttribute('aria-hidden','true');
+  popupContent.innerHTML = '';
+}
+
+/* wire specific links in background to show dedicated popups */
+document.getElementById('grandfather-link')?.addEventListener('click', function(e){
+  e.stopPropagation();
+  showPopup(`<h3>Grandfather Clause 祖父条款</h3>
+  <p>The term originated in late 19th-century legislation and constitutional amendments passed by a number of white-dominated state legislatures including Alabama, Georgia, Louisiana, North Carolina, Oklahoma, and Virginia, which created new requirements for literacy tests（读写能力测试）, payment of poll taxes（人头税） and residency and property restrictions to register to vote.</p>
+  <p>States in some cases exempted those whose ancestors (e.g., grandfathers) had the right to vote before the American Civil War or as of a particular date from such requirements. The intent and effect of such rules was to prevent former African-American slaves and their descendants from voting but without denying poor and illiterate whites the right to vote.</p>
+  <p>In the <em>Guinn v. United States</em> case of 1915, it was ruled unconstitutional by the Supreme Court of the United States.</p>`);
+});
+
+document.getElementById('jimcrow-link')?.addEventListener('click', function(e){
+  e.stopPropagation();
+  showPopup(`<h3>Jim Crow Laws 吉姆克劳法</h3>
+  <p>The Jim Crow laws were state and local laws introduced in the Southern United States in the late 19th and early 20th centuries that enforced racial segregation, “Jim Crow” being a pejorative (轻蔑的，贬损的) term for an African American.</p>
+  <p>In practice, Jim Crow laws mandated racial segregation in all public facilities in the states of the former Confederate States of America and in some others, beginning in the 1870s.</p>
+  <p><strong>Separate But Equal:</strong> Jim Crow laws were upheld in 1896 in <em>Plessy v. Ferguson</em>, in which the Supreme Court laid out its "separate but equal" legal doctrine concerning facilities for African Americans, which would stand for the next six decades.</p>`);
+});
+
+/* close popup when clicking outside or pressing Esc */
+popupDiv.addEventListener('click', function(e){ if(e.target===popupDiv) closePopup(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closePopup(); });
+
+/* Glossary lazy rendering & side-panel interactions (same as previous) */
+let wordsRendered=false, phrasesRendered=false, patternsRendered=false;
+document.querySelectorAll('.collapsible').forEach(btn=>{
+  btn.addEventListener('click', function(){
+    const id = this.getAttribute('data-target');
+    const area = document.getElementById(id);
+    if(area.style.display === 'block'){ area.style.display='none'; return; }
+    // hide other content inside glossary if any
+    document.querySelectorAll('.content').forEach(c=>{ if(c!==area) c.style.display='none'; });
+    area.style.display = 'block';
+    // lazy render lists once
+    if(id === 'words-content' && !wordsRendered){
+      const list = document.getElementById('words-list');
+      words.forEach((w,i)=> list.appendChild(createVerticalCard(w,i,'word')));
+      wordsRendered = true;
+    }
+    if(id === 'phrases-content' && !phrasesRendered){
+      const list = document.getElementById('phrases-list');
+      phrases.forEach((p,i)=> list.appendChild(createVerticalCard(p,i,'phrase')));
+      phrasesRendered = true;
+    }
+    if(id === 'patterns-content' && !patternsRendered){
+      const list = document.getElementById('patterns-list');
+      const explainBox = document.getElementById('pattern-explain');
+      patterns.forEach((pt,i)=>{
+        const node = document.createElement('div');
+        node.className = 'pattern-item';
+        node.textContent = pt[0];
+        node.addEventListener('click', ()=>{
+          explainBox.classList.remove('hidden');
+          explainBox.innerHTML = `<strong style="color:var(--accent)">${escapeHtml(pt[0])}</strong>
+            <p style="margin-top:8px;color:#ddd">${escapeHtml(pt[1])}</p>
+            <div style="margin-top:10px;color:#cfcfcf;font-size:0.95rem"><strong>Example:</strong> ${escapeHtml(pt[2])}</div>`;
+          openSidePanel(pt[0], pt[1], pt[2]);
+        });
+        list.appendChild(node);
+      });
+      patternsRendered = true;
+    }
+  });
+});
+
+/* Create vertical cards for words/phrases */
+function createVerticalCard(item, index, type){
+  const wrapper = document.createElement('div');
+  wrapper.className = 'card-vertical';
+  wrapper.dataset.index = index;
+  wrapper.dataset.type = type;
+  const inner = document.createElement('div');
+  inner.className = 'card-inner';
+  const front = document.createElement('div');
+  front.className = 'card-face card-front';
+  front.innerHTML = `<h4>${escapeHtml(item[0])}</h4><p style="margin-top:6px;color:#d6d6d6;font-size:0.82rem">${type === 'word' ? 'Legal term' : 'Legal phrase'}</p>`;
+  const back = document.createElement('div');
+  back.className = 'card-face card-back';
+  back.innerHTML = `<h4 style="color:var(--accent)">${escapeHtml(item[1])}</h4>`;
+  inner.appendChild(front);
+  inner.appendChild(back);
+  wrapper.appendChild(inner);
+
+  // hover flip
+  wrapper.addEventListener('mouseenter', ()=> inner.classList.add('flipped'));
+  wrapper.addEventListener('mouseleave', ()=> inner.classList.remove('flipped'));
+  // touch toggle flip
+  wrapper.addEventListener('touchstart', function(ev){ inner.classList.toggle('flipped'); }, {passive:true});
+  // click -> open side panel
+  wrapper.addEventListener('click', function(ev){
+    ev.stopPropagation();
+    const en = item[0];
+    const zh = item[1];
+    const orig = item[2] || '(No example sentence provided)';
+    openSidePanel(en, zh, orig);
+  });
+
+  return wrapper;
+}
+
+/* Side panel logic (original sentence) */
+const sidePanel = document.getElementById('sidePanel');
+const panelTitle = document.getElementById('panelTitle');
+const panelBody = document.getElementById('panelBody');
+const panelClose = document.getElementById('panelClose');
+
+function openSidePanel(title, zh, originalSentence){
+  panelTitle.textContent = title;
+  panelBody.innerHTML = `
+    <div style="color:#ddd;font-size:0.95rem;line-height:1.5">
+      <div style="margin-bottom:8px"><strong style="color:var(--accent)">中文 / 中文释义</strong></div>
+      <div style="color:#e0e0e0;padding:10px;background:linear-gradient(145deg,#111111,#191919);border-radius:6px;border:1px solid rgba(255,255,255,0.02)">${escapeHtml(zh)}</div>
+      <div style="margin-top:12px"><strong style="color:var(--accent)">原句 / Original sentence</strong></div>
+      <div style="color:#dcdcdc;padding:12px;margin-top:8px;background:#080808;border-radius:6px;border-left:3px solid rgba(255,204,102,0.06)">${escapeHtml(originalSentence)}</div>
+    </div>
+  `;
+  sidePanel.classList.add('open');
+  sidePanel.setAttribute('aria-hidden','false');
+  panelClose.focus();
+}
+
+panelClose.addEventListener('click', closePanel);
+function closePanel(){ sidePanel.classList.remove('open'); sidePanel.setAttribute('aria-hidden','true'); }
+
+/* close panel when clicking outside or pressing Esc */
+document.addEventListener('click', function(e){
+  if(sidePanel.classList.contains('open')){
+    const isInsidePanel = sidePanel.contains(e.target);
+    const isCard = e.target.closest('.card-vertical');
+    if(!isInsidePanel && !isCard) closePanel();
+  }
+});
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closePanel(); });
+
+/* Prevent double selection on double click */
+document.addEventListener('mousedown', (e)=>{ if(e.detail>1) e.preventDefault(); });
+
+/* initial state */
+initialMessage.style.display = 'block';
+</script>
+</body>
+</html>
